@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cek Nomor - Database</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1d3557, #457b9d);
+      color: white;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 600px;
+      background: #2a2a72;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      margin: auto;
+      margin-top: 60px;
+    }
+    h1 {
+      text-align: center;
+      color: #f1faee;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    input[type="file"] {
+      background: #f1faee;
+      color: #000;
+    }
+    input[type="text"] {
+      background: #f8f9fa;
+      color: #000;
+    }
+    button {
+      background: #e63946;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #d62828;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #1d3557;
+      border-radius: 10px;
+      line-height: 1.6;
+      white-space: pre-line;
+      font-family: monospace;
+    }
+    .success {
+      color: #06d6a0;
+    }
+    .not-found {
+      color: #ffb703;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 Cek Nomor Database</h1>
+    <input type="file" id="fileInput" accept=".txt">
+    <input type="text" id="searchInput" placeholder="Masukkan Nomor HP...">
+    <button onclick="cekNomor()">Cek Sekarang</button>
+    <div class="result" id="resultBox">Hasil akan muncul di sini.</div>
+  </div>
+
+  <script>
+    let dataList = [];
+
+    document.getElementById("fileInput").addEventListener("change", function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const lines = e.target.result.split("\n");
+        dataList = lines.map(line => {
+          const [nik, nomor, operator, tanggal] = line.trim().split(",");
+          return { nik, nomor, operator, tanggal };
+        }).filter(entry => entry.nomor); // filter yang valid
+        document.getElementById("resultBox").textContent = "📁 File berhasil dimuat. Silakan masukkan nomor.";
+      };
+      reader.readAsText(file);
+    });
+
+    function cekNomor() {
+      const input = document.getElementById("searchInput").value.trim();
+      const resultBox = document.getElementById("resultBox");
+
+      if (!input) {
+        resultBox.innerHTML = "<span class='not-found'>⚠️ Masukkan nomor terlebih dahulu.</span>";
+        return;
+      }
+
+      const found = dataList.find(entry => entry.nomor === input);
+
+      if (found) {
+        resultBox.innerHTML = `
+───────────────
+✅ <span class="success">Nomor Ditemukan!</span>
+───────────────
+📱 Nomor : ${found.nomor}
+🆔 NIK    : ${found.nik}
+📶 Operator : ${found.operator}
+📅 Tgl Registrasi : ${found.tanggal}
+───────────────
+        `;
+      } else {
+        resultBox.innerHTML = `<span class="not-found">❌ Nomor tidak ditemukan di database.</span>`;
+      }
+    }
+  </script>
+</body>
+</html>
